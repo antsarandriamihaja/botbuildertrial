@@ -16,3 +16,10 @@ const connector = new builder.ChatConnector({
 });
 
 const bot = new builder.UniversalBot(connector);
+server.post('/api/messages', connector.listen());
+
+
+//bot dialog
+bot.dialog('/', function(session){
+    session.send('Hello World');
+})
