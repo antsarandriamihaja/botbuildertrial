@@ -20,6 +20,15 @@ server.post('/api/messages', connector.listen());
 
 
 //bot dialog
-bot.dialog('/', function(session){
-    session.send('Hello World');
-})
+//sending hello world all the time
+// bot.dialog('/', function(session){
+//     session.send('Hello World');
+// })
+
+bot.dialog('/', [
+    (session)=> {
+        builder.Prompts.text(session, 'Hi, what is your name?');
+    }, (session, results) => {
+        session.send('Hello %s!', results.response);
+    }
+])
