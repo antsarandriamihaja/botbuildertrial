@@ -25,10 +25,37 @@ server.post('/api/messages', connector.listen());
 //     session.send('Hello World');
 // })
 
+//Unstored user data
+// bot.dialog('/', [
+//     (session)=> {
+//         builder.Prompts.text(session, 'Hi, what is your name?');
+//     }, (session, results) => {
+//         session.send('Hello %s!', results.response);
+//     }
+// ])
+
+//store user info for session
+
 bot.dialog('/', [
-    (session)=> {
-        builder.Prompts.text(session, 'Hi, what is your name?');
-    }, (session, results) => {
-        session.send('Hello %s!', results.response);
+    (session, args, next) => {
+        if (!session.userData.name){
+            session.beginDialog('/profile');
+        }
+        else {
+            next();
+        }
+    },
+    (session, results) => {
+        session.send('Hello %s', session.userData.name)
     }
-])
+]);
+
+bot.dialog('/profile', [
+    (session) => {
+        builder.Prompts.text(session, 'Hi what is your name?');
+    },
+    (session, results) => {
+        session.userData.name = results.response;
+        session.endDialog();
+    }
+]);
