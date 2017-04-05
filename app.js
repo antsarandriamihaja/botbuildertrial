@@ -2,6 +2,7 @@ const restify = require('restify');
 const builder = require('botbuilder');
 const config = require('./config');
 
+
 //setup Restify server
 var server = restify.createServer();
 server.listen(process.env.port|| process.env.PORT || 3978, function(){
@@ -36,26 +37,61 @@ server.post('/api/messages', connector.listen());
 
 //store user info for session
 
-bot.dialog('/', [
+// bot.dialog('/', [
+//     (session, args, next) => {
+//         if (!session.userData.name){
+//             session.beginDialog('/profile');
+//         }
+//         else {
+//             next();
+//         }
+//     },
+//     (session, results) => {
+//         session.send('Hello %s', session.userData.name)
+//     }
+// ]);
+
+// bot.dialog('/profile', [
+//     (session) => {
+//         builder.Prompts.text(session, 'Hi what is your name?'); //when user returns name: promp calls session.endDialogWithResult, storing the user name.
+//     },
+//     (session, results) => {
+//         session.userData.name = results.response;
+//         session.endDialog(); //return control back to '/' route. 
+//     }
+// ]);
+
+const intents = new builder.IntentDialog();
+
+bot.dialog('/', intents);
+
+intents.onDefault([
     (session, args, next) => {
-        if (!session.userData.name){
-            session.beginDialog('/profile');
-        }
-        else {
-            next();
+       if (!session.userData.name) {
+       session.beginDialog('/profile');
+        } else {
+        next();
         }
     },
     (session, results) => {
-        session.send('Hello %s', session.userData.name)
+        session.send('Hello %s', session.userData.name);
     }
 ]);
 
+intents.matches(/^I want to change my name/i, [
+    (session) => {
+        session.beginDialog('/profile')
+    },
+    (session, results) => {
+        session.send('Ok...I changed your name to %s', session.userData.name)
+    }
+])
 bot.dialog('/profile', [
     (session) => {
-        builder.Prompts.text(session, 'Hi what is your name?');
+        builder.Prompts.text(session, 'Hi, what is your name?');
     },
     (session, results) => {
         session.userData.name = results.response;
         session.endDialog();
     }
-]);
+])
